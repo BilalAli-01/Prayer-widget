@@ -42,6 +42,41 @@ If your mosque isn't on GoPray, iqama times will fall back to the `fallbackIqama
 
 ---
 
+## Iqama notifications
+
+The widget sends a desktop notification before each iqama. By default this fires **15 minutes** before the iqama time.
+
+To change the lead time, open [electron/notificationScheduler.ts](electron/notificationScheduler.ts) and edit the two constants at the top:
+
+```ts
+const NOTIFY_WINDOW_LOW = 870   // 14m 30s
+const NOTIFY_WINDOW_HIGH = 930  // 15m 30s
+```
+
+These define a 60-second window centred on your chosen lead time. The formula for any number of minutes is:
+
+```
+NOTIFY_WINDOW_LOW  = (minutes * 60) - 30
+NOTIFY_WINDOW_HIGH = (minutes * 60) + 30
+```
+
+For example, to be notified **10 minutes** before iqama:
+
+```ts
+const NOTIFY_WINDOW_LOW = 570   // 9m 30s
+const NOTIFY_WINDOW_HIGH = 630  // 10m 30s
+```
+
+Also update the notification title on the lines below so it matches:
+
+```ts
+title: `${prayer.name} iqama in 10 minutes`,
+// and
+title: 'Fajr iqama in 10 minutes',
+```
+
+---
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v18 or later
