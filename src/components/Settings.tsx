@@ -11,6 +11,8 @@ export default function Settings({ onSave, onCancel }: Props) {
   const [goprayUrl, setGoprayUrl] = useState('')
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const [notifyMinutes, setNotifyMinutes] = useState('15')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -19,15 +21,20 @@ export default function Settings({ onSave, onCancel }: Props) {
       setGoprayUrl(s.goprayUrl)
       setLatitude(String(s.latitude))
       setLongitude(String(s.longitude))
+      setNotificationsEnabled(s.notificationsEnabled)
+      setNotifyMinutes(String(s.notifyMinutes))
     })
   }, [])
 
   const handleSave = async () => {
     const lat = parseFloat(latitude)
     const lng = parseFloat(longitude)
+    const minutes = parseInt(notifyMinutes, 10)
     if (!goprayUrl.trim()) return setError('GoPray URL is required')
     if (isNaN(lat) || lat < -90 || lat > 90) return setError('Latitude must be between -90 and 90')
     if (isNaN(lng) || lng < -180 || lng > 180) return setError('Longitude must be between -180 and 180')
+    if (notificationsEnabled && (isNaN(minutes) || minutes < 1 || minutes > 60))
+      return setError('Notify minutes must be between 1 and 60')
 
     setSaving(true)
     setError('')
@@ -36,6 +43,8 @@ export default function Settings({ onSave, onCancel }: Props) {
         goprayUrl: goprayUrl.trim(),
         latitude: lat,
         longitude: lng,
+        notificationsEnabled,
+        notifyMinutes: minutes,
       })
       onSave(data)
     } catch (err) {
@@ -80,6 +89,31 @@ export default function Settings({ onSave, onCancel }: Props) {
             step="any"
           />
         </div>
+      </div>
+      <div className={styles.divider} />
+      <div className={styles.row} style={{ alignItems: 'center' }}>
+        <label className={styles.toggleLabel}>
+          <input
+            type="checkbox"
+            className={styles.checkbox}
+            checked={notificationsEnabled}
+            onChange={(e) => setNotificationsEnabled(e.target.checked)}
+          />
+          Iqama notifications
+        </label>
+        {notificationsEnabled && (
+          <div className={styles.minutesRow}>
+            <input
+              className={`${styles.input} ${styles.minutesInput}`}
+              type="number"
+              value={notifyMinutes}
+              onChange={(e) => setNotifyMinutes(e.target.value)}
+              min={1}
+              max={60}
+            />
+            <span className={styles.minutesLabel}>min before</span>
+          </div>
+        )}
       </div>
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.actions}>

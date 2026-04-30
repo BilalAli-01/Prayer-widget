@@ -1,9 +1,7 @@
 import { Notification } from 'electron'
 import { getPrayerData } from './prayerDataManager'
 import { parsePrayerTime, todayStrSydney, tomorrowStr } from './services/timeUtils'
-
-const NOTIFY_WINDOW_LOW = 870   // 14m 30s
-const NOTIFY_WINDOW_HIGH = 930  // 15m 30s
+import settingsStore from './settingsStore'
 
 // Tracks "PrayerName:YYYY-MM-DD" keys that have already triggered a notification
 const fired = new Set<string>()
@@ -16,6 +14,7 @@ function key(prayerName: string, date: string): string {
 
 async function check(): Promise<void> {
   if (!Notification.isSupported()) return
+  if (!settingsStore.get('notificationsEnabled')) return
 
   let data
   try {
@@ -23,6 +22,11 @@ async function check(): Promise<void> {
   } catch {
     return
   }
+
+  const notifyMinutes = settingsStore.get('notifyMinutes')
+  const windowLow = notifyMinutes * 60 - 30
+  const windowHigh = notifyMinutes * 60 + 30
+  const label = `${notifyMinutes} minute${notifyMinutes === 1 ? '' : 's'}`
 
   const now = Date.now()
   const today = todayStrSydney()
@@ -46,9 +50,9 @@ async function check(): Promise<void> {
     }
 
     const secondsUntil = Math.round((iqamaMs - now) / 1000)
-    if (secondsUntil >= NOTIFY_WINDOW_LOW && secondsUntil <= NOTIFY_WINDOW_HIGH) {
+    if (secondsUntil >= windowLow && secondsUntil <= windowHigh) {
       new Notification({
-        title: `${prayer.name} iqama in 15 minutes`,
+        title: `${prayer.name} iqama in ${label}`,
         body: prayer.iqamaDisplay,
         timeoutType: 'never',
       }).show()
@@ -62,9 +66,9 @@ async function check(): Promise<void> {
     const k = key('Fajr', tomorrow)
     if (!fired.has(k)) {
       const secondsUntil = Math.round((data.tomorrowFajr.timeMs - now) / 1000)
-      if (secondsUntil >= NOTIFY_WINDOW_LOW && secondsUntil <= NOTIFY_WINDOW_HIGH) {
+      if (secondsUntil >= windowLow && secondsUntil <= windowHigh) {
         new Notification({
-          title: 'Fajr iqama in 15 minutes',
+          title: `Fajr iqama in ${label}`,
           body: data.tomorrowFajr.display,
           timeoutType: 'never',
         }).show()

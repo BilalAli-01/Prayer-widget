@@ -6,6 +6,8 @@ interface UserSettings {
   goprayUrl: string
   latitude: number
   longitude: number
+  notificationsEnabled: boolean
+  notifyMinutes: number
 }
 
 interface ElectronAPI {

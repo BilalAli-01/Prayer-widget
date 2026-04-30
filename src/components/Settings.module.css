@@ -56,6 +56,46 @@
   -webkit-appearance: none;
 }
 
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 2px 0;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  flex: 1;
+}
+
+.checkbox {
+  width: 13px;
+  height: 13px;
+  accent-color: rgba(175, 195, 148, 0.9);
+  cursor: pointer;
+}
+
+.minutesRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.minutesInput {
+  width: 44px !important;
+  text-align: center;
+}
+
+.minutesLabel {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+
 .error {
   font-size: 10px;
   color: rgba(255, 100, 100, 0.8);
