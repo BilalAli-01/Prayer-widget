@@ -50,6 +50,7 @@ async function check(): Promise<void> {
       new Notification({
         title: `${prayer.name} iqama in 15 minutes`,
         body: prayer.iqamaDisplay,
+        timeoutType: 'never',
       }).show()
       fired.add(k)
     }
@@ -65,6 +66,7 @@ async function check(): Promise<void> {
         new Notification({
           title: 'Fajr iqama in 15 minutes',
           body: data.tomorrowFajr.display,
+          timeoutType: 'never',
         }).show()
         fired.add(k)
       }
