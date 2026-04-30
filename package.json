@@ -1,0 +1,59 @@
+{
+  "name": "prayer-widget",
+  "version": "1.0.0",
+  "description": "A minimal always-on-top prayer times desktop widget",
+  "main": "dist-electron/electron/main.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npm run build:electron && concurrently --kill-others -n vite,electron -c cyan,yellow \"vite --host 127.0.0.1\" \"npm run electron:dev\"",
+    "electron:dev": "wait-on http://127.0.0.1:5173 && cross-env NODE_ENV=development electron .",
+    "build": "npm run build:electron && npm run build:renderer && electron-builder",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:renderer": "vite build",
+    "start": "npm run build:electron && npm run build:renderer && electron .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "node-html-parser": "^7.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.prayerwidget.app",
+    "productName": "Prayer Widget",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "extraResources": [
+      { "from": "public/icon.ico", "to": "icon.ico" }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
