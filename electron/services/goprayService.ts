@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { parse } from 'node-html-parser'
-import config from '../config'
+import settingsStore from '../settingsStore'
 
 // ── Prayer name normalisation ─────────────────────────────────────────────────
 const NAME_MAP: Record<string, string> = {
@@ -130,7 +130,7 @@ function scrapeGoPray(url: string): Promise<IqamaEntry[]> {
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export async function fetchIqamaTimes(): Promise<IqamaEntry[]> {
-  return scrapeGoPray(config.mosque.goprayUrl)
+  return scrapeGoPray(settingsStore.get('goprayUrl'))
 }
 
 // parseIqamaTimes kept for offline unit-testing with raw HTML.

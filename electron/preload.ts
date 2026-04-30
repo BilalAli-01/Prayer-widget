@@ -19,4 +19,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // ── Prayer data ─────────────────────────────────────────────────────────────
   getPrayerData: () => ipcRenderer.invoke('prayer:getData'),
   refreshPrayerData: () => ipcRenderer.invoke('prayer:refresh'),
+
+  // ── Settings ─────────────────────────────────────────────────────────────────
+  getSettings: (): Promise<{ goprayUrl: string; latitude: number; longitude: number }> =>
+    ipcRenderer.invoke('settings:get'),
+  saveSettings: (settings: { goprayUrl: string; latitude: number; longitude: number }) =>
+    ipcRenderer.invoke('settings:save', settings),
 })

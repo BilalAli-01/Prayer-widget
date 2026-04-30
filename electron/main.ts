@@ -7,6 +7,8 @@ import {
   startDailyRefresh,
   stopDailyRefresh,
 } from './prayerDataManager'
+import settingsStore from './settingsStore'
+import type { UserSettings } from './settingsStore'
 import {
   startNotificationScheduler,
   stopNotificationScheduler,
@@ -221,6 +223,14 @@ ipcMain.handle('window:setCollapsed', (_e, collapsed: boolean) => {
 
 ipcMain.handle('prayer:getData', () => getPrayerData())
 ipcMain.handle('prayer:refresh', () => fetchAndCache())
+
+ipcMain.handle('settings:get', () => settingsStore.store)
+ipcMain.handle('settings:save', async (_e, settings: UserSettings) => {
+  settingsStore.set('goprayUrl', settings.goprayUrl)
+  settingsStore.set('latitude', settings.latitude)
+  settingsStore.set('longitude', settings.longitude)
+  return fetchAndCache()
+})
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────
 

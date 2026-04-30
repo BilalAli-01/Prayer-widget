@@ -4,6 +4,7 @@ import type { NextIqama } from '../services/countdownService'
 import { getNextIqama } from '../services/countdownService'
 import { useDrag } from '../hooks/useDrag'
 import PrayerTable from './PrayerTable'
+import Settings from './Settings'
 import styles from './Widget.module.css'
 
 type Status = 'loading' | 'ready' | 'error'
@@ -35,6 +36,7 @@ export default function Widget() {
   const [refreshing, setRefreshing] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(true)
   const [next, setNext] = useState<NextIqama | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     window.electronAPI.getIsCollapsed().then((v) => setIsCollapsed(v))
@@ -85,6 +87,20 @@ export default function Widget() {
     await window.electronAPI.setCollapsed(newVal)
   }
 
+  const handleOpenSettings = async () => {
+    if (isCollapsed) {
+      setIsCollapsed(false)
+      await window.electronAPI.setCollapsed(false)
+    }
+    setShowSettings(true)
+  }
+
+  const handleSettingsSaved = (newData: PrayerData) => {
+    setData(newData)
+    setStatus('ready')
+    setShowSettings(false)
+  }
+
   return (
     <div
       className={styles.shell}
@@ -96,12 +112,12 @@ export default function Widget() {
       <div className={styles.titleBar}>
         <span className={styles.titleText}>Prayer Times</span>
         <div className={styles.controls}>
-          {data?.isOffline && (
+          {data?.isOffline && !showSettings && (
             <span className={styles.offlineBadge} title="Using cached data — network unavailable">
               offline
             </span>
           )}
-          {status === 'ready' && !isCollapsed && (
+          {status === 'ready' && !isCollapsed && !showSettings && (
             <button
               className={`${styles.iconBtn} ${refreshing ? styles.spinning : ''}`}
               onClick={() => load(true)}
@@ -113,7 +129,18 @@ export default function Widget() {
               ↻
             </button>
           )}
-          {status === 'ready' && (
+          {!showSettings && (
+            <button
+              className={styles.iconBtn}
+              onClick={handleOpenSettings}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label="Settings"
+              title="Settings"
+            >
+              ⚙
+            </button>
+          )}
+          {status === 'ready' && !showSettings && (
             <button
               className={styles.collapseBtn}
               onClick={handleToggleCollapse}
@@ -135,8 +162,16 @@ export default function Widget() {
         </div>
       </div>
 
+      {/* ── Settings ──────────────────────────────────────────────────────── */}
+      {showSettings && (
+        <Settings
+          onSave={handleSettingsSaved}
+          onCancel={() => setShowSettings(false)}
+        />
+      )}
+
       {/* ── Loading ────────────────────────────────────────────────────────── */}
-      {status === 'loading' && (
+      {!showSettings && status === 'loading' && (
         <div className={styles.centred}>
           <div className={styles.spinner} />
           <p className={styles.hint}>Fetching prayer times…</p>
@@ -144,7 +179,7 @@ export default function Widget() {
       )}
 
       {/* ── Error ─────────────────────────────────────────────────────────── */}
-      {status === 'error' && (
+      {!showSettings && status === 'error' && (
         <div className={styles.centred}>
           <p className={styles.errorText}>Failed to load</p>
           <p className={styles.hint}>{errorMsg}</p>
@@ -159,7 +194,7 @@ export default function Widget() {
       )}
 
       {/* ── Ready ─────────────────────────────────────────────────────────── */}
-      {status === 'ready' && data && (
+      {!showSettings && status === 'ready' && data && (
         <>
           {/* Next iqama summary — visible in both modes */}
           <div className={styles.nextArea}>

@@ -1,0 +1,122 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 14px 14px;
+  flex: 1;
+  overflow-y: auto;
+  cursor: default;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.input {
+  width: 100%;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: rgba(175, 195, 148, 0.5);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Hide number input arrows */
+.input[type='number']::-webkit-inner-spin-button,
+.input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.error {
+  font-size: 10px;
+  color: rgba(255, 100, 100, 0.8);
+  margin: 0;
+}
+
+.hint {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.28);
+  text-align: center;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.saveBtn {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid rgba(175, 195, 148, 0.3);
+  border-radius: 6px;
+  background: rgba(175, 195, 148, 0.12);
+  color: rgba(175, 195, 148, 0.85);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: rgba(175, 195, 148, 0.22);
+  color: rgba(175, 195, 148, 1);
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,3 +1,4 @@
+import settingsStore from '../settingsStore'
 import config from '../config'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -24,7 +25,8 @@ interface AladhanResponse {
 // ── Fetching ──────────────────────────────────────────────────────────────────
 
 export async function fetchAdhanTimes(): Promise<AladhanTimings> {
-  const { latitude, longitude } = config.coordinates
+  const latitude = settingsStore.get('latitude')
+  const longitude = settingsStore.get('longitude')
   const { method, school } = config.aladhan
 
   // Pass the current Unix timestamp — Aladhan returns timings for that UTC day
