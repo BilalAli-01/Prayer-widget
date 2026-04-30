@@ -1,7 +1,7 @@
 {
   "name": "prayer-widget",
   "version": "1.0.0",
-  "description": "A minimal always-on-top prayer times desktop widget",
+  "description": "Prayer Widget",
   "main": "dist-electron/electron/main.js",
   "author": "",
   "license": "MIT",
