@@ -56,6 +56,11 @@
   -webkit-appearance: none;
 }
 
+select.input {
+  appearance: none;
+  cursor: pointer;
+}
+
 .divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.06);

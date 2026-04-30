@@ -25,12 +25,25 @@ No code editing required. Hover over the widget, click the **⚙** gear icon, an
 | **GoPray URL** | Your mosque's GoPray page, e.g. `https://gopray.com.au/place/your-mosque/` |
 | **Latitude** | Your mosque's latitude (find it by right-clicking on Google Maps) |
 | **Longitude** | Your mosque's longitude |
+| **Jummah Session** | For mosques with two Jummah sessions — select **First Jummah** or **Second Jummah** (default: First) |
 
 Click **Save** and the widget immediately fetches prayer times for your mosque.
 
 > Settings are stored locally and persist across restarts.
 
 If your mosque isn't on GoPray, iqama times will fall back to the hardcoded values in [electron/config.ts](electron/config.ts).
+
+---
+
+## Jummah on Fridays
+
+On Fridays the widget automatically:
+
+- Replaces **Dhuhr** with **Jummah** in the prayer list
+- Shows the **Jummah Khutbah time** (from GoPray) as the iqama time
+- Keeps the regular Dhuhr adhan time from the Aladhan API
+
+If your mosque runs two Jummah sessions (e.g. 1:00 PM and 1:30 PM), open the **⚙** settings panel and set **Jummah Session** to whichever one you attend. The setting defaults to the first session.
 
 ---
 

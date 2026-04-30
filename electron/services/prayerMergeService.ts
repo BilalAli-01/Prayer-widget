@@ -1,5 +1,5 @@
 import type { Prayer } from '../../src/types/prayer'
-import type { IqamaEntry } from './goprayService'
+import type { IqamaEntry, JummahTimes } from './goprayService'
 import type { AladhanTimings } from './aladhanService'
 import {
   parsePrayerTime,
@@ -21,17 +21,26 @@ const ALADHAN_KEY: Record<string, keyof AladhanTimings> = {
   Isha: 'Isha',
 }
 
+export interface MergeOptions {
+  isFriday: boolean
+  jummah: JummahTimes | null
+  jummahSession: 'first' | 'second'
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
  * Merges GoPray iqama entries with Aladhan adhan timings into a Prayer[].
  * `sydneyDate` is "YYYY-MM-DD" in Sydney timezone — used to turn time strings
  * into concrete Date objects for offset-aware arithmetic.
+ * On Fridays, Dhuhr is renamed to Jummah and its iqama time is replaced with
+ * the Jummah Khutbah time from GoPray (Adhan remains the standard Dhuhr time).
  */
 export function mergePrayerData(
   iqamaEntries: IqamaEntry[],
   adhan: AladhanTimings,
   sydneyDate: string,
+  options: MergeOptions,
 ): Prayer[] {
   const iqamaMap = new Map(iqamaEntries.map((e) => [e.name, e.rawDisplay]))
 
@@ -40,7 +49,19 @@ export function mergePrayerData(
     const adhan24 = adhan[adhanKey] ?? null
     const adhanDisplay = adhan24 ? formatAdhan24(adhan24) : null
 
-    const iqamaRaw = iqamaMap.get(name) ?? '—'
+    let prayerName: string = name
+    let iqamaRaw = iqamaMap.get(name) ?? '—'
+
+    if (name === 'Dhuhr' && options.isFriday) {
+      prayerName = 'Jummah'
+      if (options.jummah) {
+        // Use second session if configured and available, otherwise first
+        const useSecond = options.jummahSession === 'second' && options.jummah.second !== null
+        iqamaRaw = useSecond ? options.jummah.second! : options.jummah.first
+      }
+      // If jummah is null (GoPray failed), iqamaRaw stays as the Dhuhr fallback
+    }
+
     const iqamaDisplay = normaliseIqamaDisplay(iqamaRaw)
     const iqamaCountdownTime = resolveIqamaCountdownTime(
       iqamaRaw,
@@ -49,7 +70,7 @@ export function mergePrayerData(
       sydneyDate,
     )
 
-    return { name, adhanTime: adhanDisplay, iqamaDisplay, iqamaCountdownTime }
+    return { name: prayerName, adhanTime: adhanDisplay, iqamaDisplay, iqamaCountdownTime }
   })
 }
 

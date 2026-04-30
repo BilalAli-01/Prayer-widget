@@ -13,6 +13,7 @@ export default function Settings({ onSave, onCancel }: Props) {
   const [longitude, setLongitude] = useState('')
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [notifyMinutes, setNotifyMinutes] = useState('15')
+  const [jummahSession, setJummahSession] = useState<'first' | 'second'>('first')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -23,6 +24,7 @@ export default function Settings({ onSave, onCancel }: Props) {
       setLongitude(String(s.longitude))
       setNotificationsEnabled(s.notificationsEnabled)
       setNotifyMinutes(String(s.notifyMinutes))
+      setJummahSession(s.jummahSession)
     })
   }, [])
 
@@ -45,6 +47,7 @@ export default function Settings({ onSave, onCancel }: Props) {
         longitude: lng,
         notificationsEnabled,
         notifyMinutes: minutes,
+        jummahSession,
       })
       onSave(data)
     } catch (err) {
@@ -114,6 +117,18 @@ export default function Settings({ onSave, onCancel }: Props) {
             <span className={styles.minutesLabel}>min before</span>
           </div>
         )}
+      </div>
+      <div className={styles.divider} />
+      <div className={styles.field}>
+        <label className={styles.label}>Jummah Session</label>
+        <select
+          className={styles.input}
+          value={jummahSession}
+          onChange={(e) => setJummahSession(e.target.value as 'first' | 'second')}
+        >
+          <option value="first">First Jummah</option>
+          <option value="second">Second Jummah</option>
+        </select>
       </div>
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.actions}>

@@ -21,10 +21,26 @@ export interface IqamaEntry {
   rawDisplay: string // e.g. "5:30 am", "Just after athaan"
 }
 
+export interface JummahTimes {
+  first: string        // normalised "1:00 PM"
+  second: string | null // "1:30 PM" or null for single-session mosques
+}
+
+export interface GoPrayResult {
+  iqama: IqamaEntry[]
+  jummah: JummahTimes | null
+}
+
 // Raw shape returned by the in-page JS extraction
 interface RawRow {
   name: string
   display: string
+}
+
+interface RawJummahRow {
+  cls: string
+  name: string | null
+  allTds: string[]
 }
 
 // ── Hidden-window scraper ─────────────────────────────────────────────────────
@@ -33,7 +49,7 @@ interface RawRow {
 // redirects, etc.) execute exactly as they would in a normal browser visit.
 // HTTP-only clients (fetch / electron.net) cannot pass those challenges.
 
-function scrapeGoPray(url: string): Promise<IqamaEntry[]> {
+function scrapeGoPray(url: string): Promise<GoPrayResult> {
   return new Promise((resolve, reject) => {
     const win = new BrowserWindow({
       show: false,
@@ -76,7 +92,14 @@ function scrapeGoPray(url: string): Promise<IqamaEntry[]> {
             const container = document.querySelector('.place-prayer-times')
             if (!container) return null
             const rows = Array.from(container.querySelectorAll('table tr'))
-            return rows
+            const jummahRows = rows
+              .filter(r => r.className.includes('jummah'))
+              .map(r => ({
+                cls: r.className,
+                name: r.querySelector('th') ? r.querySelector('th').textContent.trim() : null,
+                allTds: Array.from(r.querySelectorAll('td')).map(td => td.textContent.replace(/\\s+/g, ' ').trim())
+              }))
+            const entries = rows
               .filter(r => !r.className.includes('jummah') && !r.className.includes('tahajjud'))
               .map(r => {
                 const th = r.querySelector('th')
@@ -88,30 +111,42 @@ function scrapeGoPray(url: string): Promise<IqamaEntry[]> {
                 }
               })
               .filter(Boolean)
+            return { jummahRows, entries }
           })()
         `)
-        .then((rows: RawRow[] | null) => {
+        .then((result: { jummahRows: RawJummahRow[]; entries: RawRow[] } | null) => {
           finish(() => {
+            if (!result) {
+              reject(new Error('GoPray: .place-prayer-times not found or empty after page load'))
+              return
+            }
+
+            const rows = result.entries
             if (!rows || rows.length === 0) {
               reject(new Error('GoPray: .place-prayer-times not found or empty after page load'))
               return
             }
 
-            const entries: IqamaEntry[] = []
+            const iqama: IqamaEntry[] = []
             for (const row of rows) {
               const canonical = NAME_MAP[row.name.toLowerCase()]
               if (canonical && row.display) {
-                entries.push({ name: canonical, rawDisplay: row.display })
+                iqama.push({ name: canonical, rawDisplay: row.display })
               }
             }
 
-            if (entries.length === 0) {
+            if (iqama.length === 0) {
               reject(new Error('GoPray: parsed zero known prayer entries'))
               return
             }
 
-            console.log(`[GoPray] Scraped ${entries.length} iqama entries via BrowserWindow`)
-            resolve(entries)
+            const jummah = parseJummahRows(result.jummahRows)
+
+            console.log(`[GoPray] Scraped ${iqama.length} iqama entries via BrowserWindow`)
+            if (jummah) {
+              console.log(`[GoPray] Jummah: first=${jummah.first} second=${jummah.second ?? 'none'}`)
+            }
+            resolve({ iqama, jummah })
           })
         })
         .catch((err: Error) => finish(() => reject(err)))
@@ -127,9 +162,32 @@ function scrapeGoPray(url: string): Promise<IqamaEntry[]> {
   })
 }
 
+// ── Jummah parsing ────────────────────────────────────────────────────────────
+
+function parseJummahRows(rows: RawJummahRow[]): JummahTimes | null {
+  // Only the row with class exactly "jummah" (not "jummah-notes") has the times.
+  const timeRow = rows.find((r) => r.cls.trim() === 'jummah' || r.cls.split(' ')[0] === 'jummah')
+  if (!timeRow || timeRow.allTds.length === 0) return null
+
+  const tdText = timeRow.allTds[0]
+  if (!tdText) return null
+
+  const parts = tdText.split(',').map((s) => normaliseTime(s.trim())).filter(Boolean)
+  if (parts.length === 0) return null
+
+  return {
+    first: parts[0],
+    second: parts[1] ?? null,
+  }
+}
+
+function normaliseTime(t: string): string {
+  return t.replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM')
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
-export async function fetchIqamaTimes(): Promise<IqamaEntry[]> {
+export async function fetchIqamaTimes(): Promise<GoPrayResult> {
   return scrapeGoPray(settingsStore.get('goprayUrl'))
 }
 

@@ -6,6 +6,7 @@ import { mergePrayerData } from './services/prayerMergeService'
 import { todayStrSydney, tomorrowStr, parsePrayerTime } from './services/timeUtils'
 import type { TomorrowFajr } from '../src/types/prayer'
 import config from './config'
+import settingsStore from './settingsStore'
 
 // ── Persistent cache ──────────────────────────────────────────────────────────
 
@@ -17,6 +18,13 @@ const cache = new Store<CacheSchema>({
   name: 'prayer-cache',
   defaults: { prayerCache: null },
 })
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function isFriday(dateStr: string): boolean {
+  const [yr, mo, da] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(yr, mo - 1, da)).getUTCDay() === 5
+}
 
 // ── Fetch + cache ─────────────────────────────────────────────────────────────
 
@@ -68,14 +76,22 @@ export async function fetchAndCache(): Promise<PrayerData> {
   // When GoPray fails, substitute the hardcoded fallback times from config
   // so the countdown still works rather than showing all "—".
   const iqamaEntries: IqamaEntry[] = iqamaOk
-    ? iqamaResult.value
+    ? iqamaResult.value.iqama
     : Object.entries(config.fallbackIqama).map(([name, rawDisplay]) => ({ name, rawDisplay }))
+
+  const jummahTimes = iqamaOk ? iqamaResult.value.jummah : null
 
   const adhanTimings: AladhanTimings = adhanOk
     ? adhanResult.value
     : ({} as AladhanTimings)
 
-  const prayers = mergePrayerData(iqamaEntries, adhanTimings, today)
+  const jummahSession = settingsStore.get('jummahSession')
+
+  const prayers = mergePrayerData(iqamaEntries, adhanTimings, today, {
+    isFriday: isFriday(today),
+    jummah: jummahTimes,
+    jummahSession,
+  })
 
   // Mark offline if either source was unavailable
   const isOffline = !iqamaOk || !adhanOk
