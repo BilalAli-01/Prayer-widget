@@ -10,70 +10,38 @@ The widget remembers its position on screen, collapses to a compact view, hides 
 
 ---
 
+## Installation
+
+Download `Prayer Widget Setup 1.0.0.exe` from the [releases page](https://github.com/BilalAli-01/Prayer-widget/releases) (or the `release/` folder if building from source), run it, and the widget will start automatically with Windows.
+
+---
+
 ## Configure for your mosque
 
-Before running, open [electron/config.ts](electron/config.ts) and update the three settings:
+No code editing required. Hover over the widget, click the **⚙** gear icon, and fill in:
 
-```ts
-const config = {
-  mosque: {
-    name: 'Your Mosque Name',
-    goprayUrl: 'https://gopray.com.au/place/your-mosque-slug/',
-  },
+| Field | Description |
+|---|---|
+| **GoPray URL** | Your mosque's GoPray page, e.g. `https://gopray.com.au/place/your-mosque/` |
+| **Latitude** | Your mosque's latitude (find it by right-clicking on Google Maps) |
+| **Longitude** | Your mosque's longitude |
 
-  coordinates: {
-    latitude: 0.000,   // your mosque's latitude
-    longitude: 0.000,  // your mosque's longitude
-  },
+Click **Save** and the widget immediately fetches prayer times for your mosque.
 
-  timezone: 'Australia/Sydney',  // your local timezone (IANA format)
+> Settings are stored locally and persist across restarts.
 
-  aladhan: {
-    method: 3,   // calculation method — see https://aladhan.com/calculation-methods
-    school: 0,   // Asr school: 0 = Shafi'i, 1 = Hanafi
-  },
-  // ...
-}
-```
-
-If your mosque isn't on GoPray, iqama times will fall back to the `fallbackIqama` values you set in the same file.
-
-> **Don't use GoPray?** You can skip the scraping entirely by hardcoding all iqama times in `fallbackIqama` and removing the GoPray fetch from `electron/prayerDataManager.ts`.
+If your mosque isn't on GoPray, iqama times will fall back to the hardcoded values in [electron/config.ts](electron/config.ts).
 
 ---
 
 ## Iqama notifications
 
-The widget sends a desktop notification before each iqama. By default this fires **15 minutes** before the iqama time.
+The widget sends a desktop notification before each iqama. Configure this in the **⚙** settings panel:
 
-To change the lead time, open [electron/notificationScheduler.ts](electron/notificationScheduler.ts) and edit the two constants at the top:
+- **Enable/disable** notifications with the checkbox
+- **Change the lead time** — enter how many minutes before iqama to notify (1–60, default 15)
 
-```ts
-const NOTIFY_WINDOW_LOW = 870   // 14m 30s
-const NOTIFY_WINDOW_HIGH = 930  // 15m 30s
-```
-
-These define a 60-second window centred on your chosen lead time. The formula for any number of minutes is:
-
-```
-NOTIFY_WINDOW_LOW  = (minutes * 60) - 30
-NOTIFY_WINDOW_HIGH = (minutes * 60) + 30
-```
-
-For example, to be notified **10 minutes** before iqama:
-
-```ts
-const NOTIFY_WINDOW_LOW = 570   // 9m 30s
-const NOTIFY_WINDOW_HIGH = 630  // 10m 30s
-```
-
-Also update the notification title on the lines below so it matches:
-
-```ts
-title: `${prayer.name} iqama in 10 minutes`,
-// and
-title: 'Fajr iqama in 10 minutes',
-```
+Notifications stay on screen until dismissed.
 
 ---
 
@@ -84,7 +52,7 @@ title: 'Fajr iqama in 10 minutes',
 
 ---
 
-## Getting started
+## Getting started (development)
 
 ```bash
 # 1. Clone the repo
@@ -107,10 +75,12 @@ The widget will appear on screen. DevTools open automatically in dev mode.
 ### Windows
 
 ```bash
-npm run build
+CSC_IDENTITY_AUTO_DISCOVERY=false npm run build
 ```
 
-This produces an NSIS installer in the `release/` folder. Run the installer and the widget starts with Windows automatically.
+This produces an NSIS installer at `release/Prayer Widget Setup 1.0.0.exe`. Run it and the widget starts with Windows automatically.
+
+> The `CSC_IDENTITY_AUTO_DISCOVERY=false` flag skips code signing (no certificate needed for personal use). You also need **Developer Mode** enabled in Windows Settings → System → For developers, otherwise the build will fail on a symlink permission error.
 
 ### macOS
 
@@ -125,13 +95,7 @@ The build config in `package.json` currently only targets Windows. To build for 
 
 You'll also want to supply a `public/icon.png` (1024×1024) for a sharp Retina tray icon, since `.ico` files can look low-resolution on macOS displays.
 
-Then run:
-
-```bash
-npm run build
-```
-
-> **Note:** Auto-start on login is not implemented for macOS (only Windows). The rest of the widget works normally.
+> **Note:** Auto-start on login is not implemented for macOS. The rest of the widget works normally.
 
 ### Linux
 
@@ -149,10 +113,12 @@ Add a `linux` entry similarly:
 
 ```
 electron/          Electron main process
-  config.ts        ← edit this to configure your mosque/location
-  main.ts          Window, tray, IPC
+  config.ts        Static defaults (mosque, coordinates, fallback iqama times)
+  settingsStore.ts User settings persisted via electron-store
+  main.ts          Window, tray, IPC handlers
+  preload.ts       Context bridge (renderer ↔ main)
   prayerDataManager.ts  Fetch + cache logic
-  notificationScheduler.ts  Prayer-time notifications
+  notificationScheduler.ts  Iqama notifications
   services/
     aladhanService.ts   Adhan times from Aladhan API
     goprayService.ts    Iqama times scraped from GoPray
@@ -163,12 +129,12 @@ src/               React renderer (UI)
   components/
     Widget.tsx     Main widget shell
     PrayerTable.tsx
-    CountdownDisplay.tsx
+    Settings.tsx   Settings panel (mosque config + notifications)
   hooks/useDrag.ts
   services/countdownService.ts
   types/prayer.ts
 
-public/            Static assets (icon)
+public/            Static assets (icon.ico)
 ```
 
 ---
