@@ -35,8 +35,9 @@ export default function Settings({ onSave, onCancel }: Props) {
     if (!goprayUrl.trim()) return setError('GoPray URL is required')
     if (isNaN(lat) || lat < -90 || lat > 90) return setError('Latitude must be between -90 and 90')
     if (isNaN(lng) || lng < -180 || lng > 180) return setError('Longitude must be between -180 and 180')
-    if (notificationsEnabled && (isNaN(minutes) || minutes < 1 || minutes > 60))
+    if (notificationsEnabled && (isNaN(minutes) || minutes < 1 || minutes > 60)) {
       return setError('Notify minutes must be between 1 and 60')
+    }
 
     setSaving(true)
     setError('')
@@ -58,6 +59,7 @@ export default function Settings({ onSave, onCancel }: Props) {
 
   return (
     <div className={styles.panel} onPointerDown={(e) => e.stopPropagation()}>
+      <div className={styles.sectionTitle}>Mosque source</div>
       <div className={styles.field}>
         <label className={styles.label}>GoPray URL</label>
         <input
@@ -93,8 +95,11 @@ export default function Settings({ onSave, onCancel }: Props) {
           />
         </div>
       </div>
+
       <div className={styles.divider} />
-      <div className={styles.row} style={{ alignItems: 'center' }}>
+
+      <div className={styles.sectionTitle}>Reminders</div>
+      <div className={styles.notificationRow}>
         <label className={styles.toggleLabel}>
           <input
             type="checkbox"
@@ -118,9 +123,11 @@ export default function Settings({ onSave, onCancel }: Props) {
           </div>
         )}
       </div>
+
       <div className={styles.divider} />
+
       <div className={styles.field}>
-        <label className={styles.label}>Jummah Session</label>
+        <label className={styles.label}>Jummah session</label>
         <select
           className={styles.input}
           value={jummahSession}
@@ -136,10 +143,10 @@ export default function Settings({ onSave, onCancel }: Props) {
           Cancel
         </button>
         <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? 'Saving...' : 'Save'}
         </button>
       </div>
-      {saving && <p className={styles.hint}>Fetching prayer times for new mosque…</p>}
+      {saving && <p className={styles.hint}>Fetching prayer times for new mosque...</p>}
     </div>
   )
 }

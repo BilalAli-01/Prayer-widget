@@ -1,269 +1,305 @@
-/* ── Shell ───────────────────────────────────────────────────────────────── */
 .shell {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  background: rgba(45, 45, 45, 0.85);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
-
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 14px;
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-
   overflow: hidden;
   user-select: none;
   cursor: grab;
+
+  color: #f7f2e7;
+  background:
+    linear-gradient(145deg, rgba(27, 38, 36, 0.94), rgba(18, 22, 24, 0.92)),
+    radial-gradient(circle at top left, rgba(212, 182, 111, 0.16), transparent 42%);
+  border: 1px solid rgba(246, 230, 191, 0.14);
+  border-radius: 14px;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
 }
 
 .shell:active {
   cursor: grabbing;
 }
 
-/* ── Title bar ───────────────────────────────────────────────────────────── */
 .titleBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px 7px;
+  gap: 8px;
+  min-height: 32px;
+  padding: 8px 9px 5px 11px;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 7px;
+}
+
+.brandMark {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d9b86d;
+  box-shadow: 0 0 16px rgba(217, 184, 109, 0.64);
   flex-shrink: 0;
 }
 
 .titleText {
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  color: rgba(247, 242, 231, 0.58);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
 }
 
-/* Controls hidden until hover */
 .controls {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
-  opacity: 0;
-  transition: opacity 0.18s ease;
+  opacity: 0.45;
+  transition: opacity 0.16s ease;
 }
 
-.shell:hover .controls {
+.shell:hover .controls,
+.controls:focus-within {
   opacity: 1;
 }
 
 .offlineBadge {
+  padding: 2px 5px;
+  border: 1px solid rgba(217, 184, 109, 0.34);
+  border-radius: 5px;
+  background: rgba(217, 184, 109, 0.1);
+  color: rgba(244, 204, 122, 0.88);
   font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
   text-transform: uppercase;
-  color: rgba(232, 184, 75, 0.8);
-  background: rgba(232, 184, 75, 0.1);
-  border: 1px solid rgba(232, 184, 75, 0.22);
-  border-radius: 3px;
-  padding: 1px 4px;
 }
 
-.iconBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
+.iconBtn,
+.closeBtn {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
   padding: 0;
-  border: none;
+  border: 1px solid rgba(247, 242, 231, 0.08);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(247, 242, 231, 0.62);
+  cursor: pointer;
+  font-family: inherit;
   font-size: 13px;
   line-height: 1;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
-.iconBtn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.75);
+.iconBtn:hover:not(:disabled),
+.iconBtn:focus-visible {
+  border-color: rgba(217, 184, 109, 0.34);
+  background: rgba(217, 184, 109, 0.14);
+  color: #fff7dd;
 }
 
 .iconBtn:disabled {
-  opacity: 0.35;
+  opacity: 0.38;
   cursor: default;
 }
 
+.closeBtn {
+  color: rgba(247, 242, 231, 0.46);
+  font-size: 15px;
+}
+
+.closeBtn:hover,
+.closeBtn:focus-visible {
+  border-color: rgba(235, 110, 103, 0.34);
+  background: rgba(235, 110, 103, 0.14);
+  color: #ffb0aa;
+}
+
 .spinning {
-  animation: spin 0.7s linear infinite;
+  animation: spin 0.75s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-.collapseBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.32);
-  font-size: 10px;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.collapseBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.closeBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.28);
-  font-size: 9px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.closeBtn:hover {
-  background: rgba(255, 70, 70, 0.2);
-  color: rgba(255, 100, 100, 0.9);
-}
-
-/* ── Next iqama area ─────────────────────────────────────────────────────── */
 .nextArea {
   display: flex;
+  flex: 0 0 96px;
+  min-height: 0;
   flex-direction: column;
-  align-items: flex-start;
   justify-content: center;
-  flex: 1;
-  padding: 4px 16px 10px;
-  flex-shrink: 0;
-  min-height: 80px;
-  max-height: 96px;
+  padding: 3px 16px 14px;
+}
+
+.kicker {
+  margin-bottom: 4px;
+  color: rgba(217, 184, 109, 0.78);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .nextRow {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-bottom: 2px;
+  min-width: 0;
+  gap: 9px;
 }
 
 .nextPrayer {
-  font-size: 26px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.01em;
-  line-height: 1;
+  min-width: 0;
+  color: #fff7dd;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 0.98;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nextIqama {
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(247, 242, 231, 0.72);
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .countdown {
-  font-size: 18px;
-  font-weight: 300;
-  letter-spacing: 0.03em;
-  color: rgba(175, 195, 148, 0.78);
+  margin-top: 6px;
+  color: #a9d6bb;
+  font-size: 19px;
   font-variant-numeric: tabular-nums;
-  line-height: 1;
-  margin-top: 4px;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.05;
 }
 
-/* ── Divider ─────────────────────────────────────────────────────────────── */
+.countdownSoon {
+  color: #f4cc7a;
+}
+
+.contextRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  color: rgba(247, 242, 231, 0.48);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.contextRow span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.055);
+  margin: 0 10px;
+  background: linear-gradient(90deg, transparent, rgba(247, 242, 231, 0.12), transparent);
   flex-shrink: 0;
-  margin: 0 8px;
 }
 
-/* ── Table wrapper (expanded only) ──────────────────────────────────────── */
 .tableWrapper {
   flex: 1;
-  overflow: hidden;
-  padding: 2px 4px 4px;
   min-height: 0;
+  overflow: hidden;
+  padding: 7px 9px 4px;
 }
 
-/* ── Centred states (loading / error) ────────────────────────────────────── */
 .centred {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px;
+  gap: 9px;
+  min-height: 0;
+  padding: 18px;
 }
 
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.07);
-  border-top-color: rgba(232, 184, 75, 0.65);
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(247, 242, 231, 0.1);
+  border-top-color: rgba(217, 184, 109, 0.9);
   border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 .hint {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.28);
-  text-align: center;
   max-width: 240px;
+  color: rgba(247, 242, 231, 0.48);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .errorText {
+  color: #ffb0aa;
   font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 100, 100, 0.75);
+  font-weight: 750;
 }
 
 .retryBtn {
-  margin-top: 4px;
-  padding: 4px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
+  margin-top: 3px;
+  padding: 6px 14px;
+  border: 1px solid rgba(217, 184, 109, 0.26);
+  border-radius: 7px;
+  background: rgba(217, 184, 109, 0.12);
+  color: #fff1c7;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .retryBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(217, 184, 109, 0.44);
+  background: rgba(217, 184, 109, 0.18);
 }
 
-/* ── Last updated footer (expanded only) ─────────────────────────────────── */
 .lastUpdated {
   display: flex;
   align-items: center;
-  gap: 5px;
+  min-height: 26px;
   padding: 5px 12px 8px;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.25);
-  font-variant-numeric: tabular-nums;
+  border-top: 1px solid rgba(247, 242, 231, 0.06);
+  color: rgba(247, 242, 231, 0.4);
   flex-shrink: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }

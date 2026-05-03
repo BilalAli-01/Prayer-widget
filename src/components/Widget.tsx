@@ -18,6 +18,15 @@ function formatFetchedAt(epochMs: number): string {
   }).format(new Date(epochMs))
 }
 
+function formatDisplayDate(date: string): string {
+  const [year, month, day] = date.split('-').map(Number)
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(Date.UTC(year, month - 1, day)))
+}
+
 function todaySydney(): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Australia/Sydney',
@@ -61,7 +70,6 @@ export default function Widget() {
 
   useEffect(() => { load(false) }, [load])
 
-  // Midnight auto-refresh
   useEffect(() => {
     const id = setInterval(() => {
       if (data && data.date !== todaySydney()) load(false)
@@ -69,7 +77,6 @@ export default function Widget() {
     return () => clearInterval(id)
   }, [data, load])
 
-  // Countdown tick (absorbed from CountdownDisplay)
   useEffect(() => {
     if (!data) return
     const tomorrowFajr = data.tomorrowFajr ?? null
@@ -101,6 +108,11 @@ export default function Widget() {
     setShowSettings(false)
   }
 
+  const countdownClassName = [
+    styles.countdown,
+    next && next.secondsUntil <= 15 * 60 ? styles.countdownSoon : '',
+  ].filter(Boolean).join(' ')
+
   return (
     <div
       className={styles.shell}
@@ -108,12 +120,16 @@ export default function Widget() {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
-      {/* ── Title bar ─────────────────────────────────────────────────────── */}
       <div className={styles.titleBar}>
-        <span className={styles.titleText}>Prayer Times</span>
+        <div className={styles.brand}>
+          <span className={styles.brandMark} />
+          <span className={styles.titleText}>
+            {showSettings ? 'Settings' : data ? formatDisplayDate(data.date) : 'Prayer Times'}
+          </span>
+        </div>
         <div className={styles.controls}>
           {data?.isOffline && !showSettings && (
-            <span className={styles.offlineBadge} title="Using cached data — network unavailable">
+            <span className={styles.offlineBadge} title="Using cached data; network unavailable">
               offline
             </span>
           )}
@@ -126,7 +142,7 @@ export default function Widget() {
               title="Refresh prayer times"
               disabled={refreshing}
             >
-              ↻
+              &#8635;
             </button>
           )}
           {!showSettings && (
@@ -137,18 +153,18 @@ export default function Widget() {
               aria-label="Settings"
               title="Settings"
             >
-              ⚙
+              &#9881;
             </button>
           )}
           {status === 'ready' && !showSettings && (
             <button
-              className={styles.collapseBtn}
+              className={styles.iconBtn}
               onClick={handleToggleCollapse}
               onPointerDown={(e) => e.stopPropagation()}
               aria-label={isCollapsed ? 'Expand' : 'Collapse'}
               title={isCollapsed ? 'Expand' : 'Collapse'}
             >
-              {isCollapsed ? '▾' : '▴'}
+              {isCollapsed ? '+' : '-'}
             </button>
           )}
           <button
@@ -156,13 +172,13 @@ export default function Widget() {
             onClick={() => window.electronAPI.closeWindow()}
             onPointerDown={(e) => e.stopPropagation()}
             aria-label="Close"
+            title="Hide to tray"
           >
-            ✕
+            &times;
           </button>
         </div>
       </div>
 
-      {/* ── Settings ──────────────────────────────────────────────────────── */}
       {showSettings && (
         <Settings
           onSave={handleSettingsSaved}
@@ -170,15 +186,13 @@ export default function Widget() {
         />
       )}
 
-      {/* ── Loading ────────────────────────────────────────────────────────── */}
       {!showSettings && status === 'loading' && (
         <div className={styles.centred}>
           <div className={styles.spinner} />
-          <p className={styles.hint}>Fetching prayer times…</p>
+          <p className={styles.hint}>Fetching prayer times...</p>
         </div>
       )}
 
-      {/* ── Error ─────────────────────────────────────────────────────────── */}
       {!showSettings && status === 'error' && (
         <div className={styles.centred}>
           <p className={styles.errorText}>Failed to load</p>
@@ -193,19 +207,21 @@ export default function Widget() {
         </div>
       )}
 
-      {/* ── Ready ─────────────────────────────────────────────────────────── */}
       {!showSettings && status === 'ready' && data && (
         <>
-          {/* Next iqama summary — visible in both modes */}
           <div className={styles.nextArea}>
+            <div className={styles.kicker}>Next iqama</div>
             <div className={styles.nextRow}>
-              <span className={styles.nextPrayer}>{next?.prayer.name ?? '—'}</span>
-              <span className={styles.nextIqama}>{next?.prayer.iqamaCountdownTime ?? '—'}</span>
+              <span className={styles.nextPrayer}>{next?.prayer.name ?? '--'}</span>
+              <span className={styles.nextIqama}>{next?.prayer.iqamaCountdownTime ?? '--'}</span>
             </div>
-            <div className={styles.countdown}>{next?.label ?? '--:--'}</div>
+            <div className={countdownClassName}>{next?.label ?? '--:--'}</div>
+            <div className={styles.contextRow}>
+              <span>Adhan {next?.prayer.adhanTime ?? '--'}</span>
+              <span>Sydney</span>
+            </div>
           </div>
 
-          {/* Full prayer table — expanded only */}
           {!isCollapsed && (
             <>
               <div className={styles.divider} />
@@ -216,7 +232,7 @@ export default function Widget() {
                 />
               </div>
               <div className={styles.lastUpdated}>
-                ⏱ Last updated: {formatFetchedAt(data.fetchedAt)}
+                Last updated {formatFetchedAt(data.fetchedAt)}
               </div>
             </>
           )}
