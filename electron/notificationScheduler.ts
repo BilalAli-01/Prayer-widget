@@ -8,6 +8,21 @@ const fired = new Set<string>()
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null
 
+function showPrayerNotification(title: string, body: string): void {
+  const persistent = settingsStore.get('persistentNotifications')
+  const notification = new Notification({ title, body, timeoutType: persistent ? 'never' : 'default' })
+  let dismissTimer: ReturnType<typeof setTimeout> | undefined
+  if (!persistent) {
+    notification.once('show', () => {
+      dismissTimer = setTimeout(() => notification.close(), 10_000)
+    })
+  }
+  const clearDismissTimer = () => clearTimeout(dismissTimer)
+  notification.once('close', clearDismissTimer)
+  notification.once('failed', clearDismissTimer)
+  notification.show()
+}
+
 function key(prayerName: string, date: string): string {
   return `${prayerName}:${date}`
 }
@@ -51,11 +66,7 @@ async function check(): Promise<void> {
 
     const secondsUntil = Math.round((iqamaMs - now) / 1000)
     if (secondsUntil >= windowLow && secondsUntil <= windowHigh) {
-      new Notification({
-        title: `${prayer.name} iqama in ${label}`,
-        body: prayer.iqamaDisplay,
-        timeoutType: 'never',
-      }).show()
+      showPrayerNotification(`${prayer.name} iqama in ${label}`, prayer.iqamaDisplay)
       fired.add(k)
     }
   }
@@ -67,11 +78,7 @@ async function check(): Promise<void> {
     if (!fired.has(k)) {
       const secondsUntil = Math.round((data.tomorrowFajr.timeMs - now) / 1000)
       if (secondsUntil >= windowLow && secondsUntil <= windowHigh) {
-        new Notification({
-          title: `Fajr iqama in ${label}`,
-          body: data.tomorrowFajr.display,
-          timeoutType: 'never',
-        }).show()
+        showPrayerNotification(`Fajr iqama in ${label}`, data.tomorrowFajr.display)
         fired.add(k)
       }
     }

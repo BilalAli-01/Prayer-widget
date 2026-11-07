@@ -6,6 +6,7 @@ export interface UserSettings {
   latitude: number
   longitude: number
   notificationsEnabled: boolean
+  persistentNotifications: boolean
   notifyMinutes: number
   jummahSession: 'first' | 'second'
 }
@@ -17,6 +18,7 @@ const settingsStore = new Store<UserSettings>({
     latitude: config.coordinates.latitude,
     longitude: config.coordinates.longitude,
     notificationsEnabled: true,
+    persistentNotifications: false,
     notifyMinutes: 15,
     jummahSession: 'first',
   },

@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type { UserSettings } from './settingsStore'
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // ── Window control ──────────────────────────────────────────────────────────
@@ -21,8 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   refreshPrayerData: () => ipcRenderer.invoke('prayer:refresh'),
 
   // ── Settings ─────────────────────────────────────────────────────────────────
-  getSettings: (): Promise<{ goprayUrl: string; latitude: number; longitude: number; notificationsEnabled: boolean; notifyMinutes: number; jummahSession: 'first' | 'second' }> =>
+  getSettings: (): Promise<UserSettings> =>
     ipcRenderer.invoke('settings:get'),
-  saveSettings: (settings: { goprayUrl: string; latitude: number; longitude: number; notificationsEnabled: boolean; notifyMinutes: number; jummahSession: 'first' | 'second' }) =>
+  saveSettings: (settings: UserSettings) =>
     ipcRenderer.invoke('settings:save', settings),
 })

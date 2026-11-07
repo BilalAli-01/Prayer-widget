@@ -12,6 +12,7 @@ export default function Settings({ onSave, onCancel }: Props) {
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const [persistentNotifications, setPersistentNotifications] = useState(false)
   const [notifyMinutes, setNotifyMinutes] = useState('15')
   const [jummahSession, setJummahSession] = useState<'first' | 'second'>('first')
   const [saving, setSaving] = useState(false)
@@ -23,6 +24,7 @@ export default function Settings({ onSave, onCancel }: Props) {
       setLatitude(String(s.latitude))
       setLongitude(String(s.longitude))
       setNotificationsEnabled(s.notificationsEnabled)
+      setPersistentNotifications(s.persistentNotifications)
       setNotifyMinutes(String(s.notifyMinutes))
       setJummahSession(s.jummahSession)
     })
@@ -46,6 +48,7 @@ export default function Settings({ onSave, onCancel }: Props) {
         latitude: lat,
         longitude: lng,
         notificationsEnabled,
+        persistentNotifications,
         notifyMinutes: minutes,
         jummahSession,
       })
@@ -118,6 +121,20 @@ export default function Settings({ onSave, onCancel }: Props) {
           </div>
         )}
       </div>
+      {notificationsEnabled && (
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="notification-duration">Notification duration</label>
+          <select
+            id="notification-duration"
+            className={styles.input}
+            value={persistentNotifications ? 'persistent' : 'auto'}
+            onChange={(e) => setPersistentNotifications(e.target.value === 'persistent')}
+          >
+            <option value="auto">Auto dismiss after 10 seconds</option>
+            <option value="persistent">Keep visible until dismissed</option>
+          </select>
+        </div>
+      )}
       <div className={styles.divider} />
       <div className={styles.field}>
         <label className={styles.label}>Jummah Session</label>

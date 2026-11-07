@@ -7,6 +7,7 @@ interface UserSettings {
   latitude: number
   longitude: number
   notificationsEnabled: boolean
+  persistentNotifications: boolean
   notifyMinutes: number
   jummahSession: 'first' | 'second'
 }

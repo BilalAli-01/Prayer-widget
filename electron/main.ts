@@ -230,6 +230,7 @@ ipcMain.handle('settings:save', async (_e, settings: UserSettings) => {
   settingsStore.set('latitude', settings.latitude)
   settingsStore.set('longitude', settings.longitude)
   settingsStore.set('notificationsEnabled', settings.notificationsEnabled)
+  settingsStore.set('persistentNotifications', settings.persistentNotifications === true)
   settingsStore.set('notifyMinutes', settings.notifyMinutes)
   settingsStore.set('jummahSession', settings.jummahSession)
   return fetchAndCache()

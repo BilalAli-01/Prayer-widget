@@ -58,7 +58,7 @@ The widget sends a desktop notification before each iqama. Configure this in the
 - **Enable/disable** notifications with the checkbox
 - **Change the lead time** — enter how many minutes before iqama to notify (1–60, default 15)
 
-Notifications stay on screen until dismissed.
+- **Notification duration** — choose **Auto dismiss after 10 seconds** (default) or **Keep visible until dismissed**. Your choice is saved across restarts. Windows may hide auto-dismiss banners sooner based on your notification settings.
 
 ---
 
@@ -95,7 +95,7 @@ The widget will appear on screen. DevTools open automatically in dev mode.
 CSC_IDENTITY_AUTO_DISCOVERY=false npm run build
 ```
 
-This produces an NSIS installer at `release/Prayer Widget Setup 1.1.1.exe`. Run it and the widget starts with Windows automatically.
+This produces an NSIS installer at `release/Prayer Widget Setup 1.1.2.exe`. Run it and the widget starts with Windows automatically.
 
 To publish a release, update the version in `package.json` and `package-lock.json`, update `RELEASE_NOTES.md`, commit, and push a matching version tag (for example `v1.1.1`). The GitHub release workflow checks the code, builds the Windows installer, and uploads it to Releases.
 
