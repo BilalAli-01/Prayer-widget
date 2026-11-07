@@ -64,7 +64,7 @@ export default function Widget() {
   // Midnight auto-refresh
   useEffect(() => {
     const id = setInterval(() => {
-      if (data && data.date !== todaySydney()) load(false)
+      if (data && (data.date !== todaySydney() || (data.isOffline && Date.now() - data.fetchedAt >= 5 * 60_000))) load(true)
     }, 60_000)
     return () => clearInterval(id)
   }, [data, load])
@@ -113,7 +113,7 @@ export default function Widget() {
         <span className={styles.titleText}>Prayer Times</span>
         <div className={styles.controls}>
           {data?.isOffline && !showSettings && (
-            <span className={styles.offlineBadge} title="Using cached data — network unavailable">
+            <span className={styles.offlineBadge} title="One or more prayer sources unavailable; using fallback or cached times">
               offline
             </span>
           )}

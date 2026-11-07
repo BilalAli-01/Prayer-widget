@@ -12,7 +12,11 @@ The widget remembers its position on screen, collapses to a compact view, hides 
 
 ## Installation
 
-Download `Prayer Widget Setup 1.0.0.exe` from the [releases page](https://github.com/BilalAli-01/Prayer-widget/releases) (or the `release/` folder if building from source), run it, and the widget will start automatically with Windows.
+Download the latest Windows setup executable from the [releases page](https://github.com/BilalAli-01/Prayer-widget/releases/latest) (or the `release/` folder if building from source), run it, and the widget will start automatically with Windows.
+
+To update an existing installation, quit Prayer Widget from the system tray and run the latest installer. Automatic app updates are not currently supported.
+
+Version 1.1.1 supports GoPray's redesigned `gopray.app` pages and automatically retries when a prayer source is unavailable.
 
 ---
 
@@ -91,7 +95,9 @@ The widget will appear on screen. DevTools open automatically in dev mode.
 CSC_IDENTITY_AUTO_DISCOVERY=false npm run build
 ```
 
-This produces an NSIS installer at `release/Prayer Widget Setup 1.0.0.exe`. Run it and the widget starts with Windows automatically.
+This produces an NSIS installer at `release/Prayer Widget Setup 1.1.1.exe`. Run it and the widget starts with Windows automatically.
+
+To publish a release, update the version in `package.json` and `package-lock.json`, update `RELEASE_NOTES.md`, commit, and push a matching version tag (for example `v1.1.1`). The GitHub release workflow checks the code, builds the Windows installer, and uploads it to Releases.
 
 > The `CSC_IDENTITY_AUTO_DISCOVERY=false` flag skips code signing (no certificate needed for personal use). You also need **Developer Mode** enabled in Windows Settings → System → For developers, otherwise the build will fail on a symlink permission error.
 

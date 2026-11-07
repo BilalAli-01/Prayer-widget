@@ -37,7 +37,16 @@ function isFriday(dateStr: string): boolean {
  *   - Aladhan fails, GoPray ok  → show iqama times, no adhan column, isOffline=true
  *   - Both fail                 → return stale cache (isOffline=true), or throw
  */
-export async function fetchAndCache(): Promise<PrayerData> {
+let pendingFetch: Promise<PrayerData> | null = null
+
+export function fetchAndCache(): Promise<PrayerData> {
+  if (!pendingFetch) {
+    pendingFetch = performFetchAndCache().finally(() => { pendingFetch = null })
+  }
+  return pendingFetch
+}
+
+async function performFetchAndCache(): Promise<PrayerData> {
   const today = todayStrSydney()
   console.log('[PrayerData] Fetching for', today)
 
@@ -180,8 +189,8 @@ export function startDailyRefresh(): void {
     const stored = cache.get('prayerCache')
     const today = todayStrSydney()
 
-    if (!stored || stored.date !== today) {
-      console.log('[PrayerData] New Sydney day — refreshing')
+    if (!stored || stored.date !== today || (stored.isOffline && Date.now() - stored.fetchedAt >= 5 * 60_000)) {
+      console.log('[PrayerData] Missing, outdated or offline data — refreshing')
       try {
         await fetchAndCache()
       } catch (err) {

@@ -8,6 +8,7 @@ interface UserSettings {
   longitude: number
   notificationsEnabled: boolean
   notifyMinutes: number
+  jummahSession: 'first' | 'second'
 }
 
 interface ElectronAPI {
